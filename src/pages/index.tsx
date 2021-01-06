@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import Head from 'next/head'
-
+import fs from 'fs'
 import {
   Container,
   Main,
@@ -12,8 +12,10 @@ import {
 } from '../styles/pages/Home'
 import EllaLogo from '../assets/images/ella.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faFileUpload, faCalendarAlt } from '@fortawesome/free-solid-svg-icons'
+import { faSpinner, faCalendarAlt } from '@fortawesome/free-solid-svg-icons'
 import { Spent } from '../components/Table'
+import { GetStaticProps } from 'next'
+import axios from 'axios'
 
 interface TypeExpense {
   fixed: string
@@ -39,170 +41,68 @@ interface Expenses {
   lastValue: number
   spents: Spent[]
 }
+interface Props {
+  data: Estimate[]
+}
 
-const menu = [
-  { id: 1, title: 'Dezembro', year: 2020 },
-  { id: 2, title: 'Dezembro', year: 2020 },
-  { id: 3, title: 'Dezembro', year: 2020 },
-  { id: 4, title: 'Dezembro', year: 2020 },
-  { id: 5, title: 'Dezembro', year: 2020 },
-  { id: 6, title: 'Dezembro', year: 2020 }
-]
-const fixos: Spent[] = [
-  { id: 1, date: null, title: 'Aluguel', value: 895.15 },
-  { id: 2, date: null, title: 'Aluguel', value: 895.15 },
-  { id: 3, date: null, title: 'Aluguel', value: 895.15 },
-  { id: 4, date: null, title: 'Aluguel', value: 895.15 }
-  // { id: 5, title: 'Aluguel', valor: 895.15 },
-  // { id: 6, title: 'Aluguel', valor: 895.15 },
-  // { id: 7, title: 'Aluguel', valor: 895.15 },
-  // { id: 8, title: 'Aluguel', valor: 895.15 }
-]
-const varied: Spent[] = [
-  { id: 0, date: '20/12', title: 'Comida', value: 895.15 },
-  { id: 1, date: '20/12', title: 'Comida', value: 895.15 },
-  { id: 2, date: '20/12', title: 'Comida', value: 895.15 },
-  { id: 3, date: '20/12', title: 'Comida', value: 895.15 },
-  { id: 4, date: '20/12', title: 'Comida', value: 895.15 },
-  { id: 5, date: '20/12', title: 'Comida', value: 895.15 }
-  // { id: 6, date: '20/12', title: 'Comida', value: 895.15 }
-  // { id: 7, date: '20/12', title: 'Comida', value: 895.15 },
-  // { id: 8, date: '20/12', title: '8 - Agua', value: 895.15 },
-  // { id: 9, date: '20/12', title: '9 - Agua', value: 895.15 },
-  // { id: 10, date: '20/12', title: '10 - Agua', value: 895.15 }
-]
-const expected: Spent[] = [
-  { id: 0, date: '20/12', title: '0 - Agua', value: 895.15 },
-  { id: 1, date: '20/12', title: '1 - Agua', value: 895.15 },
-  { id: 2, date: '20/12', title: '2 - Agua', value: 895.15 },
-  { id: 3, date: '20/12', title: '3 - Agua', value: 895.15 },
-  { id: 4, date: '20/12', title: '4 - Agua', value: 895.15 },
-  { id: 5, date: '20/12', title: '5 - Agua', value: 895.15 },
-  { id: 6, date: '20/12', title: '6 - Agua', value: 895.15 },
-  { id: 7, date: '20/12', title: '7 - Agua', value: 895.15 },
-  { id: 8, date: '20/12', title: '8 - Agua', value: 895.15 },
-  { id: 9, date: '20/12', title: '9 - Agua', value: 895.15 },
-  { id: 10, date: '20/12', title: '10 - Agua', value: 895.15 }
-]
-
-const fileEstimates: Estimate[] = [
-  {
-    id: 1,
-    endDay: '31/12/2020',
-    finalBalance: '1820.00',
-    month: 'Dezembro',
-    year: '2020',
-    openingBalance: '3000.0',
-    salary: '2984.0',
-    startDay: '16/12/2020',
-    expenses: [
-      {
-        lastValue: 930,
-        type: 'fixed',
-        value: 1030,
-        spents: [
-          {
-            id: 1608087871863,
-            date: null,
-            title: 'Internet',
-            value: 100.0
-          },
-          {
-            id: 1608087871861,
-            date: null,
-            title: 'Aluguel',
-            value: 930.0
-          }
-        ]
-      },
-      {
-        lastValue: 150,
-        type: 'expected',
-        value: 150,
-        spents: [
-          {
-            id: 1608087871866,
-            date: '16/12',
-            title: 'Energia',
-            value: 150.0
-          }
-        ]
-      },
-      {
-        lastValue: 30,
-        type: 'varied',
-        value: 100,
-        spents: [
-          {
-            id: 1608089871866,
-            date: '16/12',
-            title: 'Comida',
-            value: 10.0
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: 2,
-    month: 'Janeiro',
-    year: '2020',
-    salary: '2984.0',
-    finalBalance: '120.00',
-    openingBalance: '2850.0',
-    endDay: '01/02/2021',
-    startDay: '01/01/2021',
-    expenses: [
-      {
-        lastValue: 930,
-        type: 'fixed',
-        value: 1030,
-        spents: [
-          {
-            id: 1608087871863,
-            date: null,
-            title: 'Internet',
-            value: 100.0
-          }
-        ]
-      },
-      {
-        lastValue: 150,
-        type: 'expected',
-        value: 150,
-        spents: [
-          {
-            id: 1608087871866,
-            date: '16/12',
-            title: 'Energia',
-            value: 150.0
-          },
-          {
-            id: 1608087871861,
-            date: '16/12',
-            title: 'Aluguel',
-            value: 930.0
-          }
-        ]
-      },
-      {
-        lastValue: 30,
-        type: 'varied',
-        value: 100,
-        spents: [
-          {
-            id: 1608089871866,
-            date: '16/12',
-            title: 'Comida',
-            value: 10.0
-          }
-        ]
-      }
-    ]
+const formattedBudgets = (data: any): Estimate[] => {
+  if (!data) {
+    return []
   }
-]
 
-const Home: React.FC = () => {
+  return data.map(estimate => {
+    return {
+      ...estimate,
+      month: estimate.month.split('/')[0],
+      year: '20' + estimate.month.split('/')[1],
+      endDay: estimate.endDay.split('/').reverse().join('/'),
+      startDay: estimate.startDay.split('/').reverse().join('/'),
+      expenses: estimate.expenses.map(expense => {
+        const types = {
+          'TypeExpense.FIXED': 'fixed',
+          'TypeExpense.EXPECTED': 'expected',
+          'TypeExpense.VARIED': 'varied'
+        }
+
+        return {
+          ...expense,
+          type: types[expense.type],
+          spents: expense.spents.map(spent => {
+            return {
+              ...spent,
+              id: Number(spent.id),
+              date:
+                spent.date === null
+                  ? null
+                  : `${spent.date.split('/')[2]}/${spent.date.split('/')[1]}`
+            }
+          })
+        }
+      })
+    }
+  })
+}
+
+const prepareData = (dataFileOrRequest: any, staticProps = true) => {
+  if (dataFileOrRequest) {
+    let dataJson = dataFileOrRequest
+
+    if (staticProps) {
+      dataJson = JSON.parse(dataFileOrRequest)
+    }
+
+    try {
+      dataJson.orcamentos = [JSON.parse(dataJson?.orcamentos)]
+    } catch (error) {}
+
+    // eslint-disable-next-line prefer-const
+    return formattedBudgets(dataJson?.orcamentos)
+  } else {
+    return []
+  }
+}
+
+const Home: React.FC<Props> = ({ data }) => {
   const [estimates, setEstimates] = useState<Estimate[]>([])
   const [currentEstimate, setCurrentEstimates] = useState<Estimate>()
 
@@ -220,12 +120,23 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     setEstimates(() => {
-      if (fileEstimates.length > 0) {
-        setCurrentEstimates(fileEstimates[0])
+      if (data.length > 0) {
+        setCurrentEstimates(data[0])
       }
-      return [...fileEstimates]
+      return [...data]
     })
-  }, [])
+  }, [data])
+
+  const requestFileEstimate = async () => {
+    try {
+      const res = await axios.get('/upload/estimates.json')
+      const data = await res.data
+      console.log(data)
+      setEstimates(prepareData(data, false))
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <Container>
@@ -266,9 +177,9 @@ const Home: React.FC = () => {
           </ul>
 
           <footer>
-            <div>
-              <FontAwesomeIcon color="#e2f4f3" size="2x" icon={faFileUpload} />
-            </div>
+            <button onClick={() => requestFileEstimate()}>
+              <FontAwesomeIcon color="#e2f4f3" size="2x" icon={faSpinner} />
+            </button>
           </footer>
         </Menu>
         <Card>
@@ -311,6 +222,24 @@ const Home: React.FC = () => {
       </Main>
     </Container>
   )
+}
+
+export const getStaticProps: GetStaticProps = async context => {
+  let estimates: Estimate[]
+  let dataFile
+
+  try {
+    dataFile = fs.readFileSync('public/upload/estimates.json', 'utf8')
+  } catch (error) {}
+
+  // eslint-disable-next-line prefer-const
+  estimates = prepareData(dataFile)
+
+  return {
+    props: {
+      data: estimates
+    } // will be passed to the page component as props
+  }
 }
 
 export default Home

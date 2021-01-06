@@ -141,7 +141,7 @@ export const Menu = styled.div`
     justify-content: center;
     align-items: center;
 
-    div {
+    button {
       background-color: ${props => props.theme.colors.primary};
       border-radius: 10px;
       width: 50px;
@@ -150,6 +150,17 @@ export const Menu = styled.div`
       justify-content: center;
       align-items: center;
       cursor: pointer;
+      border: none;
+      transition: ${props => props.theme.other.transition};
+
+      &:focus {
+        outline: 0;
+      }
+
+      &:hover {
+        transform: scale(1.1);
+        box-shadow: ${props => props.theme.other.boxShadow};
+      }
     }
   }
 `
