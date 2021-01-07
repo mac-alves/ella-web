@@ -120,10 +120,10 @@ const Table: React.FC<Props> = ({ data, title, limitRow = 6, className }) => {
         <p>Total: 12</p>
         <div>
           <button onClick={() => navigation('left')}>
-            <FontAwesomeIcon color="#6DC9B7" size="2x" icon={faAngleLeft} />
+            <FontAwesomeIcon color="#6DC9B7" size="lg" icon={faAngleLeft} />
           </button>
           <button onClick={() => navigation('right')}>
-            <FontAwesomeIcon color="#6DC9B7" size="2x" icon={faAngleRight} />
+            <FontAwesomeIcon color="#6DC9B7" size="lg" icon={faAngleRight} />
           </button>
         </div>
       </footer>

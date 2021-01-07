@@ -5,28 +5,27 @@ export const Container = styled.div`
   display: flex;
   justify-content: space-between;
   flex-direction: column;
-  height: 500px;
+  height: 350px;
 
   header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
 
     h2 {
       font-weight: bold;
-      font-size: 30px;
+      font-size: 20px;
       color: ${props => props.theme.colors.secondary};
       line-height: 30px;
     }
 
     p {
-      line-height: 30px;
+      font-size: 12px;
     }
   }
 
   & > div {
-    height: calc(100% - 120px);
+    height: calc(100% - 70px);
     overflow-y: auto;
     padding-right: 5px;
 
@@ -50,16 +49,17 @@ export const Container = styled.div`
         tr {
           td {
             border-bottom: 0.5px solid rgb(108 194 217 / 0.4);
-            font-size: 18px;
-            height: 55px;
+            font-size: 12px;
+            height: 39px;
 
             &:first-child {
-              width: 10%;
+              width: 15%;
             }
 
             &:last-child {
               width: 15%;
               text-align: right;
+              font-size: 14px;
               color: ${props => props.theme.colors.secondary};
             }
           }
@@ -73,12 +73,16 @@ export const Container = styled.div`
     justify-content: space-between;
     align-items: center;
 
+    p {
+      font-size: 12px;
+    }
+
     div {
       display: flex;
 
       button {
-        width: 45px;
-        height: 45px;
+        width: 25px;
+        height: 25px;
         background: #e2f4f3;
         border-radius: 5px;
         display: flex;

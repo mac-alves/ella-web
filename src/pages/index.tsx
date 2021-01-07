@@ -142,6 +142,10 @@ const Home: React.FC<Props> = ({ data }) => {
     <Container>
       <Head>
         <title>EllA Money Web</title>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1"
+        />
       </Head>
 
       <Main>
@@ -163,7 +167,7 @@ const Home: React.FC<Props> = ({ data }) => {
                   <div>
                     <FontAwesomeIcon
                       color="#e2f4f3"
-                      size="2x"
+                      size="lg"
                       icon={faCalendarAlt}
                     />
                   </div>

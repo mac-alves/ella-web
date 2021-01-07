@@ -3,11 +3,12 @@ import Table from '../../components/Table'
 
 export const Container = styled.div`
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   flex-direction: column;
+  padding: 50px;
 `
 
 export const Main = styled.div`
@@ -17,13 +18,14 @@ export const Main = styled.div`
   grid-template-areas:
     'menu card card card fixed'
     'menu varied varied expected expected';
-  gap: 25px;
+  gap: 20px;
 
   width: 80%;
-  height: 80%;
-  max-width: 2000px;
-  max-height: 1100px;
-  padding: 25px;
+  height: 800px;
+  max-width: 1350px;
+  max-height: 800px;
+  padding: 20px;
+  margin-bottom: 30px;
 
   background: ${props => props.theme.colors.backgroundColor};
   border-radius: ${props => props.theme.sizes.borderRadius};
@@ -35,7 +37,7 @@ export const Menu = styled.div`
   border-radius: ${props => props.theme.sizes.borderRadius};
   box-shadow: ${props => props.theme.other.boxShadow};
   padding: 25px 0 50px 0;
-  min-width: 350px;
+  min-width: 300px;
   position: relative;
 
   header {
@@ -48,11 +50,11 @@ export const Menu = styled.div`
     img {
       width: auto;
       height: auto;
-      max-width: 150px;
+      max-width: 110px;
     }
 
     h3 {
-      font-size: 45px;
+      font-size: 30px;
       color: ${props => props.theme.colors.primary};
       font-style: normal;
       font-weight: bold;
@@ -63,12 +65,13 @@ export const Menu = styled.div`
       font-family: Poppins;
       font-style: italic;
       font-weight: normal;
+      font-size: 12px;
     }
   }
 
   ul {
     overflow-y: auto;
-    max-height: 605px;
+    max-height: 305px;
 
     &::-webkit-scrollbar {
       width: 10px;
@@ -84,7 +87,7 @@ export const Menu = styled.div`
 
     li {
       display: flex;
-      padding: 10px 25px;
+      padding: 7px 15px;
       transition: ${props => props.theme.other.transition};
       cursor: pointer;
 
@@ -97,8 +100,8 @@ export const Menu = styled.div`
           div {
             background-color: ${props => props.theme.colors.primary};
             border-radius: 10px;
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -115,10 +118,9 @@ export const Menu = styled.div`
           h4 {
             font-style: normal;
             font-weight: 600;
-            font-size: 1.3rem;
+            font-size: 15px;
             color: white;
             line-height: 22px;
-            margin-bottom: 5px;
           }
 
           p {
@@ -127,6 +129,7 @@ export const Menu = styled.div`
             text-align: left;
             color: white;
             line-height: 18px;
+            font-size: 12px;
           }
         }
       }
@@ -135,7 +138,7 @@ export const Menu = styled.div`
 
   footer {
     position: absolute;
-    bottom: 25px;
+    bottom: 20px;
     width: 100%;
     display: flex;
     justify-content: center;
@@ -144,8 +147,8 @@ export const Menu = styled.div`
     button {
       background-color: ${props => props.theme.colors.primary};
       border-radius: 10px;
-      width: 50px;
-      height: 50px;
+      width: 40px;
+      height: 40px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -173,7 +176,7 @@ export const Card = styled.div`
   display: flex;
   justify-content: space-between;
   flex-direction: column;
-  padding: 25px;
+  padding: 20px;
 
   header {
     display: flex;
@@ -181,7 +184,7 @@ export const Card = styled.div`
     width: 100%;
 
     p {
-      font-size: 18px;
+      font-size: 14px;
       color: white;
       font-style: italic;
     }
@@ -199,14 +202,14 @@ export const Card = styled.div`
         margin-bottom: 25px;
 
         p {
-          font-size: 18px;
+          font-size: 12px;
           color: #dcfbff;
           font-style: italic;
         }
 
         h4 {
           color: white;
-          font-size: 32px;
+          font-size: 25px;
         }
       }
     }
@@ -218,32 +221,32 @@ export const Card = styled.div`
     width: 100%;
 
     p {
-      font-size: 18px;
+      font-size: 14px;
       color: #dcfbff;
       font-style: italic;
     }
 
     h4 {
       color: white;
-      font-size: 20px;
+      font-size: 14px;
     }
   }
 `
 
 export const Fixed = styled.div`
   grid-area: fixed;
-  height: 500px;
+  height: 335px;
 
   h2 {
     font-weight: bold;
-    font-size: 30px;
+    font-size: 20px;
     color: ${props => props.theme.colors.secondary};
     text-align: center;
     margin-bottom: 15px;
   }
 
   ul {
-    max-height: calc(100% - 60px);
+    max-height: calc(100% - 30px);
     overflow-y: auto;
     padding-right: 5px;
 
@@ -266,8 +269,8 @@ export const Fixed = styled.div`
       border-radius: 20px;
       display: flex;
       justify-content: space-between;
-      padding: 15px;
-      font-size: 18px;
+      padding: 10px 15px;
+      font-size: 14px;
       margin-bottom: 15px;
 
       p:first-child {
