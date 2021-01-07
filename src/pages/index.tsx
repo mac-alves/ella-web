@@ -83,20 +83,9 @@ const formattedBudgets = (data: any): Estimate[] => {
   })
 }
 
-const prepareData = (dataFileOrRequest: any, staticProps = true) => {
-  if (dataFileOrRequest) {
-    let dataJson = dataFileOrRequest
-
-    if (staticProps) {
-      dataJson = JSON.parse(dataFileOrRequest)
-    }
-
-    try {
-      dataJson.orcamentos = [JSON.parse(dataJson?.orcamentos)]
-    } catch (error) {}
-
-    // eslint-disable-next-line prefer-const
-    return formattedBudgets(dataJson?.orcamentos)
+const prepareData = (dataJson: any) => {
+  if (dataJson) {
+    return formattedBudgets(dataJson.orcamentos)
   } else {
     return []
   }
@@ -129,10 +118,8 @@ const Home: React.FC<Props> = ({ data }) => {
 
   const requestFileEstimate = async () => {
     try {
-      const res = await axios.get('/upload/estimates.json')
-      const data = await res.data
-      console.log(data)
-      setEstimates(prepareData(data, false))
+      const { data } = await axios.get('/api/estimates')
+      setEstimates(prepareData(data.data))
     } catch (error) {
       console.log(error)
     }
@@ -230,14 +217,17 @@ const Home: React.FC<Props> = ({ data }) => {
 
 export const getStaticProps: GetStaticProps = async context => {
   let estimates: Estimate[]
-  let dataFile
+  let dataEstimates
 
   try {
-    dataFile = fs.readFileSync('public/upload/estimates.json', 'utf8')
-  } catch (error) {}
+    const { data } = await axios.get(`${process.env.HOST_URL}/api/estimates`)
+    dataEstimates = data.data
+  } catch (error) {
+    console.log(error)
+  }
 
   // eslint-disable-next-line prefer-const
-  estimates = prepareData(dataFile)
+  estimates = prepareData(dataEstimates)
 
   return {
     props: {
