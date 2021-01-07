@@ -5,7 +5,7 @@ export const Container = styled.div`
   display: flex;
   justify-content: space-between;
   flex-direction: column;
-  height: 350px;
+  height: 370px;
 
   header {
     display: flex;
@@ -30,7 +30,7 @@ export const Container = styled.div`
     padding-right: 5px;
 
     &::-webkit-scrollbar {
-      width: 10px;
+      width: 7px;
       background: #e2f4f3;
     }
     &::-webkit-scrollbar-track {

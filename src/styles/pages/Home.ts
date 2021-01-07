@@ -8,7 +8,7 @@ export const Container = styled.div`
   justify-content: flex-start;
   align-items: center;
   flex-direction: column;
-  padding: 50px;
+  padding-top: 80px;
 `
 
 export const Main = styled.div`
@@ -235,7 +235,7 @@ export const Card = styled.div`
 
 export const Fixed = styled.div`
   grid-area: fixed;
-  height: 335px;
+  height: 370px;
 
   h2 {
     font-weight: bold;
@@ -246,7 +246,7 @@ export const Fixed = styled.div`
   }
 
   ul {
-    max-height: calc(100% - 30px);
+    max-height: calc(100% - 45px);
     overflow-y: auto;
     padding-right: 5px;
 
