@@ -45,7 +45,7 @@ export const Menu = styled.div`
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    margin-bottom: 25px;
+    margin-bottom: 15px;
 
     img {
       width: auto;
@@ -71,7 +71,7 @@ export const Menu = styled.div`
 
   ul {
     overflow-y: auto;
-    max-height: 305px;
+    max-height: 475px;
 
     &::-webkit-scrollbar {
       width: 10px;
