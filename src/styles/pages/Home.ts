@@ -12,6 +12,15 @@ export const Container = styled.div`
 `
 
 export const Main = styled.div`
+  @keyframes loading {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
   display: grid;
   grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr;
@@ -163,6 +172,10 @@ export const Menu = styled.div`
       &:hover {
         transform: scale(1.1);
         box-shadow: ${props => props.theme.other.boxShadow};
+      }
+
+      & > div.loading {
+        animation: loading 1.5s infinite;
       }
     }
   }

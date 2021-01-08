@@ -13,7 +13,6 @@ import EllaLogo from '../assets/images/ella.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSpinner, faCalendarAlt } from '@fortawesome/free-solid-svg-icons'
 import { Spent } from '../components/Table'
-import { GetStaticProps } from 'next'
 import axios from 'axios'
 import { Line } from 'react-chartjs-2'
 
@@ -116,6 +115,7 @@ const optionsChart = {
 }
 
 const Home: React.FC = () => {
+  const [loadingData, setLoadingData] = useState<boolean>(true)
   const [estimates, setEstimates] = useState<Estimate[]>([])
   const [currentEstimate, setCurrentEstimate] = useState<Estimate>()
 
@@ -196,10 +196,13 @@ const Home: React.FC = () => {
 
   const requestFileEstimate = async () => {
     try {
+      setLoadingData(true)
       const { data } = await axios.get('/api/estimates')
       setEstimates(prepareData(data.data))
       setCurrent({} as Estimate)
+      setLoadingData(false)
     } catch (error) {
+      setLoadingData(false)
       console.log(error)
     }
   }
@@ -252,8 +255,13 @@ const Home: React.FC = () => {
           </ul>
 
           <footer>
-            <button onClick={() => requestFileEstimate()}>
-              <FontAwesomeIcon color="#e2f4f3" size="2x" icon={faSpinner} />
+            <button
+              title="Carregar dados"
+              onClick={() => requestFileEstimate()}
+            >
+              <div className={loadingData ? 'loading' : ''}>
+                <FontAwesomeIcon color="#e2f4f3" size="2x" icon={faSpinner} />
+              </div>
             </button>
           </footer>
         </Menu>
