@@ -79,7 +79,7 @@ const Table: React.FC<Props> = ({ data, title, limitRow = 6, className }) => {
   }
 
   useEffect(() => {
-    if (data.length > 0) {
+    if (data !== null && data.length > 0) {
       setTable({
         initialList: data,
         list: [...data].slice(0, limitRow),

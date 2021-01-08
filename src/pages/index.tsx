@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import Head from 'next/head'
-import fs from 'fs'
 import {
   Container,
   Main,
@@ -16,6 +15,7 @@ import { faSpinner, faCalendarAlt } from '@fortawesome/free-solid-svg-icons'
 import { Spent } from '../components/Table'
 import { GetStaticProps } from 'next'
 import axios from 'axios'
+import { Line } from 'react-chartjs-2'
 
 interface TypeExpense {
   fixed: string
@@ -40,9 +40,6 @@ interface Expenses {
   value: number
   lastValue: number
   spents: Spent[]
-}
-interface Props {
-  data: Estimate[]
 }
 
 const formattedBudgets = (data: any): Estimate[] => {
@@ -91,15 +88,62 @@ const prepareData = (dataJson: any) => {
   }
 }
 
-const Home: React.FC<Props> = ({ data }) => {
+const optionsChart = {
+  responsive: true,
+  tooltips: {
+    mode: 'label'
+  },
+  elements: {
+    line: {
+      fill: false
+    }
+  },
+  scales: {
+    xAxes: [
+      {
+        display: true,
+        gridLines: {
+          display: false
+        }
+      }
+    ],
+    yAxes: [
+      {
+        display: false
+      }
+    ]
+  }
+}
+
+const Home: React.FC = () => {
   const [estimates, setEstimates] = useState<Estimate[]>([])
-  const [currentEstimate, setCurrentEstimates] = useState<Estimate>()
+  const [currentEstimate, setCurrentEstimate] = useState<Estimate>()
+
+  const [dataChart, setDataChart] = useState({
+    labels: [],
+    datasets: [
+      {
+        label: 'Gastos Variados',
+        type: 'line',
+        data: [],
+        fill: false,
+        borderColor: '#2D99B6',
+        backgroundColor: '#2D99B6',
+        pointBorderColor: '#2D99B6',
+        pointBackgroundColor: '#2D99B6',
+        pointHoverBackgroundColor: '#2D99B6',
+        pointHoverBorderColor: '#2D99B6'
+      }
+    ]
+  })
 
   const getSpents = useCallback(
     (type: keyof TypeExpense) => {
       if (currentEstimate) {
-        const expense = currentEstimate.expenses.find(exp => exp.type === type)
-        return expense.spents
+        const expense = currentEstimate?.expenses?.find(
+          exp => exp.type === type
+        )
+        return expense?.spents ? expense.spents : []
       }
 
       return []
@@ -107,23 +151,63 @@ const Home: React.FC<Props> = ({ data }) => {
     [currentEstimate]
   )
 
-  useEffect(() => {
-    setEstimates(() => {
-      if (data.length > 0) {
-        setCurrentEstimates(data[0])
+  const setCurrent = async (estimate: Estimate) => {
+    if (!estimate.expenses) {
+      setDataChart(data => {
+        const datasets = {
+          ...data.datasets[0],
+          data: []
+        }
+
+        return {
+          ...data,
+          labels: [],
+          datasets: [datasets]
+        }
+      })
+
+      setCurrentEstimate({} as Estimate)
+      return
+    }
+
+    const spents = estimate.expenses.find(exp => exp.type === 'varied').spents
+    const dataChart = spents
+      .map(spent => spent.value)
+      .splice(spents.length - 10, 10)
+    const labelsChart = spents
+      .map(spent => spent.date)
+      .splice(spents.length - 10, 10)
+
+    setDataChart(data => {
+      const datasets = {
+        ...data.datasets[0],
+        data: dataChart
       }
-      return [...data]
+
+      return {
+        ...data,
+        labels: labelsChart,
+        datasets: [datasets]
+      }
     })
-  }, [data])
+
+    setCurrentEstimate(estimate)
+  }
 
   const requestFileEstimate = async () => {
     try {
       const { data } = await axios.get('/api/estimates')
       setEstimates(prepareData(data.data))
+      setCurrent({} as Estimate)
     } catch (error) {
       console.log(error)
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line prettier/prettier
+    (async () => await requestFileEstimate())()
+  }, [])
 
   return (
     <Container>
@@ -147,7 +231,7 @@ const Home: React.FC<Props> = ({ data }) => {
             {estimates.map(item => (
               <li
                 key={item.id}
-                onClick={() => setCurrentEstimates(item)}
+                onClick={() => setCurrent(item)}
                 className={currentEstimate?.id === item.id ? 'select' : ''}
               >
                 <div>
@@ -189,17 +273,24 @@ const Home: React.FC<Props> = ({ data }) => {
                 <p>Valor Final</p>
               </li>
             </ul>
+            <div>
+              <Line data={dataChart} options={optionsChart} />
+            </div>
           </div>
           <footer>
             <p>Período</p>
-            <h4>{currentEstimate?.startDay + '-' + currentEstimate?.endDay}</h4>
+            <h4>
+              {currentEstimate?.startDay && currentEstimate?.endDay
+                ? currentEstimate?.startDay + '-' + currentEstimate?.endDay
+                : ''}
+            </h4>
           </footer>
         </Card>
         <Fixed>
           <h2>Gastos Fixos</h2>
           <ul>
             {currentEstimate?.expenses
-              .find(exp => exp.type === 'fixed')
+              ?.find(exp => exp.type === 'fixed')
               .spents.map(item => (
                 <li key={item.id}>
                   <p>{item.title}</p>
@@ -213,27 +304,6 @@ const Home: React.FC<Props> = ({ data }) => {
       </Main>
     </Container>
   )
-}
-
-export const getStaticProps: GetStaticProps = async context => {
-  let estimates: Estimate[]
-  let dataEstimates
-
-  try {
-    const { data } = await axios.get(`${process.env.HOST_URL}/api/estimates`)
-    dataEstimates = data.data
-  } catch (error) {
-    console.log(error)
-  }
-
-  // eslint-disable-next-line prefer-const
-  estimates = prepareData(dataEstimates)
-
-  return {
-    props: {
-      data: estimates
-    } // will be passed to the page component as props
-  }
 }
 
 export default Home

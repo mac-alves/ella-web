@@ -193,6 +193,7 @@ export const Card = styled.div`
   & > div {
     width: 100%;
     height: 100%;
+    display: flex;
 
     & ul {
       width: 25%;
@@ -212,6 +213,10 @@ export const Card = styled.div`
           font-size: 25px;
         }
       }
+    }
+
+    & > div {
+      width: 540px;
     }
   }
 
