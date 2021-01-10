@@ -60,19 +60,27 @@ const formattedBudgets = (data: any): Estimate[] => {
           'TypeExpense.VARIED': 'varied'
         }
 
+        expense.spents.sort((a, b) => {
+          const dateA = new Date(a.date).getTime()
+          const dateB = new Date(b.date).getTime()
+          return dateB - dateA
+        })
+
+        const spents = expense.spents.map(spent => {
+          return {
+            ...spent,
+            id: Number(spent.id),
+            date:
+              spent.date === null
+                ? null
+                : `${spent.date.split('/')[2]}/${spent.date.split('/')[1]}`
+          }
+        })
+
         return {
           ...expense,
           type: types[expense.type],
-          spents: expense.spents.map(spent => {
-            return {
-              ...spent,
-              id: Number(spent.id),
-              date:
-                spent.date === null
-                  ? null
-                  : `${spent.date.split('/')[2]}/${spent.date.split('/')[1]}`
-            }
-          })
+          spents
         }
       })
     }
@@ -171,22 +179,21 @@ const Home: React.FC = () => {
     }
 
     const spents = estimate.expenses.find(exp => exp.type === 'varied').spents
-    const dataChart = spents
-      .map(spent => spent.value)
-      .splice(spents.length - 10, 10)
-    const labelsChart = spents
-      .map(spent => spent.date)
-      .splice(spents.length - 10, 10)
+
+    const offset = spents.length - 10 <= 0 ? 0 : spents.length - 10
+
+    const dataChart = spents.map(spent => spent.value).splice(offset, 10)
+    const labelsChart = spents.map(spent => spent.date).splice(offset, 10)
 
     setDataChart(data => {
       const datasets = {
         ...data.datasets[0],
-        data: dataChart
+        data: dataChart.reverse()
       }
 
       return {
         ...data,
-        labels: labelsChart,
+        labels: labelsChart.reverse(),
         datasets: [datasets]
       }
     })
