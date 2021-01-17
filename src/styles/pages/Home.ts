@@ -152,6 +152,14 @@ export const Menu = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
+
+    p {
+      text-align: center;
+      font-size: 12px;
+      color: #b56363;
+      padding: 5px 0;
+    }
 
     button {
       background-color: ${props => props.theme.colors.primary};

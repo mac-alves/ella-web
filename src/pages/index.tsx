@@ -13,8 +13,9 @@ import EllaLogo from '../assets/images/ella.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSpinner, faCalendarAlt } from '@fortawesome/free-solid-svg-icons'
 import { Spent } from '../components/Table'
-import axios from 'axios'
+import { get } from '../config/axios'
 import { Line } from 'react-chartjs-2'
+import { useRouter } from 'next/router'
 
 interface TypeExpense {
   fixed: string
@@ -123,6 +124,8 @@ const optionsChart = {
 }
 
 const Home: React.FC = () => {
+  const router = useRouter()
+  const [error, setError] = useState<string>()
   const [loadingData, setLoadingData] = useState<boolean>(true)
   const [estimates, setEstimates] = useState<Estimate[]>([])
   const [currentEstimate, setCurrentEstimate] = useState<Estimate>()
@@ -182,18 +185,24 @@ const Home: React.FC = () => {
 
     const offset = spents.length - 10 <= 0 ? 0 : spents.length - 10
 
-    const dataChart = spents.map(spent => spent.value).splice(offset, 10)
-    const labelsChart = spents.map(spent => spent.date).splice(offset, 10)
+    const dataChart = spents
+      .map(spent => spent.value)
+      .reverse()
+      .splice(offset, 10)
+    const labelsChart = spents
+      .map(spent => spent.date)
+      .reverse()
+      .splice(offset, 10)
 
     setDataChart(data => {
       const datasets = {
         ...data.datasets[0],
-        data: dataChart.reverse()
+        data: dataChart
       }
 
       return {
         ...data,
-        labels: labelsChart.reverse(),
+        labels: labelsChart,
         datasets: [datasets]
       }
     })
@@ -202,21 +211,41 @@ const Home: React.FC = () => {
   }
 
   const requestFileEstimate = async () => {
+    setError('')
+
     try {
       setLoadingData(true)
-      const { data } = await axios.get('/api/estimates')
-      setEstimates(prepareData(data.data))
-      setCurrent({} as Estimate)
-      setLoadingData(false)
+      const resp = await get('/api/estimates')
+
+      if (resp.status === 200) {
+        setEstimates(prepareData(resp.data.data))
+        setCurrent({} as Estimate)
+        setLoadingData(false)
+      } else {
+        throw Object(resp.data)
+      }
     } catch (error) {
       setLoadingData(false)
-      console.log(error)
+      if (error.data.redirect) {
+        router.replace('/login')
+      } else {
+        setError(error.error.replaceAll('"', ''))
+      }
     }
   }
 
   useEffect(() => {
     // eslint-disable-next-line prettier/prettier
-    (async () => await requestFileEstimate())()
+    (async () => {
+      const token = window.localStorage.getItem('@ella-web')
+
+      if (!token) {
+        router.replace('/login')
+        return
+      }
+
+      await requestFileEstimate()
+    })()
   }, [])
 
   return (
@@ -262,6 +291,7 @@ const Home: React.FC = () => {
           </ul>
 
           <footer>
+            <p>{error}</p>
             <button
               title="Carregar dados"
               onClick={() => requestFileEstimate()}

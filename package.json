@@ -13,8 +13,10 @@
     "@fortawesome/react-fontawesome": "^0.1.14",
     "@vercel/node": "^1.8.5",
     "axios": "^0.21.1",
+    "bcrypt": "^5.0.0",
     "chart.js": "^2.9.4",
     "formidable": "^1.2.2",
+    "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.6.3",
     "next": "10.0.4",
     "next-images": "^1.6.2",
@@ -24,6 +26,8 @@
     "styled-components": "^5.2.1"
   },
   "devDependencies": {
+    "@types/bcrypt": "^3.0.0",
+    "@types/jsonwebtoken": "^8.5.0",
     "@types/mongodb": "^3.6.3",
     "@types/node": "^14.14.16",
     "@types/react": "^17.0.0",

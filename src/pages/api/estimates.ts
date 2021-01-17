@@ -1,6 +1,7 @@
 import { NowRequest, NowResponse } from '@vercel/node'
 import { MongoClient, Db } from 'mongodb'
 import { URL } from 'url'
+import jwt from 'jsonwebtoken'
 
 let cachedDb: Db = null
 
@@ -25,6 +26,27 @@ const connectToDatabase = async (uri: string) => {
   cachedDb = client.db(dbName)
 
   return cachedDb
+}
+
+const authorized = req => {
+  const bearer = req.headers.authorization
+
+  if (!bearer) {
+    return { auth: false, msg: 'No token provided.' }
+  }
+
+  const token = bearer.split(' ')[1]
+
+  try {
+    jwt.verify(token, process.env.SECRET)
+    return { auth: true, msg: 'Successful token.' }
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return { auth: false, msg: 'Token jwt expired.' }
+    }
+
+    return { auth: false, msg: 'Failed to authenticate token.' }
+  }
 }
 
 const putEstimates = async (data: any): Promise<Result> => {
@@ -75,6 +97,11 @@ export default async (req: NowRequest, res: NowResponse) => {
       GET: () => getEstimates()
     }
 
+    const auth = authorized(req)
+    if (!auth.auth) {
+      throw Object({ msg: auth.msg, redirect: true })
+    }
+
     if (actions[req.method]) {
       const info = await actions[req.method](req.body)
 
@@ -82,9 +109,13 @@ export default async (req: NowRequest, res: NowResponse) => {
         .status(info.cod)
         .json({ msg: info.msg, error: info.error, data: info.data })
     } else {
-      throw String('Method not allowed')
+      throw Object({ msg: 'Method not allowed', redirect: false })
     }
   } catch (error) {
-    res.status(400).json({ message: JSON.stringify(error, null, 2) })
+    res.status(400).json({
+      msg: null,
+      error: error.msg,
+      data: { redirect: error.redirect }
+    })
   }
 }
