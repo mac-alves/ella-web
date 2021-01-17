@@ -12,6 +12,11 @@ interface Result {
   data: any
 }
 
+/**
+ * Função de conexão com o banco de dados
+ *
+ * @param uri
+ */
 const connectToDatabase = async (uri: string) => {
   if (cachedDb) {
     return cachedDb
@@ -28,6 +33,11 @@ const connectToDatabase = async (uri: string) => {
   return cachedDb
 }
 
+/**
+ * Verificação de autenticação para visualizar os orçamentos
+ *
+ * @param req
+ */
 const authorized = req => {
   const bearer = req.headers.authorization
 
@@ -49,6 +59,11 @@ const authorized = req => {
   }
 }
 
+/**
+ * Responsável por receber e salvar os orçamentos no banco
+ *
+ * @param data
+ */
 const putEstimates = async (data: any): Promise<Result> => {
   try {
     if (!data) {
@@ -71,6 +86,9 @@ const putEstimates = async (data: any): Promise<Result> => {
   }
 }
 
+/**
+ * Responsável por retornar os orçamentos salvos no banco
+ */
 const getEstimates = async (): Promise<Result> => {
   try {
     const db = await connectToDatabase(process.env.MONGODB_URI)
@@ -89,28 +107,51 @@ const getEstimates = async (): Promise<Result> => {
   }
 }
 
+/**
+ * Ações possíveis para essa serverless
+ *
+ * @param req
+ */
+const actions = (req: NowRequest) => {
+  const options = {
+    POST: (req: NowRequest) => {
+      const bearer = req.headers.authorization
+
+      if (!bearer) {
+        throw Object({ msg: 'No secret provided.', redirect: false })
+      }
+
+      if (bearer !== process.env.SECRET) {
+        throw Object({ msg: 'Not authorized', redirect: false })
+      }
+
+      return putEstimates(req.body)
+    },
+    GET: (req: NowRequest) => {
+      const auth = authorized(req)
+      if (!auth.auth) {
+        throw Object({ msg: auth.msg, redirect: true })
+      }
+
+      return getEstimates()
+    }
+  }
+
+  if (options[req.method]) {
+    return options[req.method](req)
+  } else {
+    throw Object({ msg: 'Method not allowed', redirect: false })
+  }
+}
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export default async (req: NowRequest, res: NowResponse) => {
   try {
-    const actions = {
-      POST: (data: any) => putEstimates(data),
-      GET: () => getEstimates()
-    }
+    const info = await actions(req)
 
-    const auth = authorized(req)
-    if (!auth.auth) {
-      throw Object({ msg: auth.msg, redirect: true })
-    }
-
-    if (actions[req.method]) {
-      const info = await actions[req.method](req.body)
-
-      return res
-        .status(info.cod)
-        .json({ msg: info.msg, error: info.error, data: info.data })
-    } else {
-      throw Object({ msg: 'Method not allowed', redirect: false })
-    }
+    return res
+      .status(info.cod)
+      .json({ msg: info.msg, error: info.error, data: info.data })
   } catch (error) {
     res.status(400).json({
       msg: null,
