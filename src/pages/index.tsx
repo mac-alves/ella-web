@@ -71,6 +71,7 @@ const formattedBudgets = (data: any): Estimate[] => {
           return {
             ...spent,
             id: Number(spent.id),
+            value: Number(spent.value),
             date:
               spent.date === null
                 ? null
@@ -182,15 +183,24 @@ const Home: React.FC = () => {
     }
 
     const spents = estimate.expenses.find(exp => exp.type === 'varied').spents
+    const dataSpent = new Map<string, number>()
 
-    const offset = spents.length - 10 <= 0 ? 0 : spents.length - 10
+    spents.forEach(spent => {
+      dataSpent.set(
+        spent.date,
+        dataSpent.get(spent.date)
+          ? Number((dataSpent.get(spent.date) + spent.value).toFixed(2))
+          : spent.value
+      )
+    })
 
-    const dataChart = spents
-      .map(spent => spent.value)
+    const offset = dataSpent.size - 10 <= 0 ? 0 : dataSpent.size - 10
+
+    const dataChart = Array.from(dataSpent.values())
       .reverse()
       .splice(offset, 10)
-    const labelsChart = spents
-      .map(spent => spent.date)
+
+    const labelsChart = Array.from(dataSpent.keys())
       .reverse()
       .splice(offset, 10)
 
@@ -326,7 +336,7 @@ const Home: React.FC = () => {
             <p>Período</p>
             <h4>
               {currentEstimate?.startDay && currentEstimate?.endDay
-                ? currentEstimate?.startDay + '-' + currentEstimate?.endDay
+                ? currentEstimate?.startDay + ' - ' + currentEstimate?.endDay
                 : ''}
             </h4>
           </footer>
